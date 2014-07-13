@@ -34,31 +34,59 @@ function eventHandler(self, event, unit, ...)
 end
 
 function onLoad()
-	if (addon) then
-		drawMainFrame()
-		colorPrint("ShardCounter loaded, for help type /shardcounter ?")
-	else
-		errorPrint("Unable to load ShardCounter!")
+	if (powerType()) then
+		if (addon) then
+			drawMainFrame()
+			drawShards()
+			colorPrint("ShardCounter loaded, for help type /shardcounter ?")
+		else
+			errorPrint("Unable to load ShardCounter!")
+		end
 	end
 end
 
+function update()
+	--TODO determine how many shards available
+	--TODO update shard display
+end
+
 function drawMainFrame()
-	local width = 100
-	local height = 25
-	addon:SetWidth(width)
+	local height = 35
+	local width = height * maxPower()
 	addon:SetHeight(height)
+	addon:SetWidth(width)
 
 	addon:SetPoint("CENTER", UIParent, "CENTER")
 	addon:SetMovable(true)
 	addon:SetScript("OnDragStart", addon.StartMoving)
 	addon:SetScript("OnDragStop", addon.StopMovingOrSizing)
+end
 
-	local bg = addon:CreateTexture("BACKGROUND", "ARTWORK")
-	bg:SetTexture(0.58, 0.5, 0.79, 0.25)
-	bg:SetWidth(width)
-	bg:SetHeight(height)
-	bg:SetPoint("CENTER", addon, "CENTER")
-end	
+function drawShards()
+	for i = 0, maxPower() - 1, 1 do
+		local shard = shardTexture()
+		shard:SetPoint("LEFT", shard:GetWidth() * i, 0)
+	end
+end
+
+function shardTexture()
+	local size = addon:GetWidth() / 4
+	local shard = addon:CreateTexture("SHARD", "ARTWORK")
+	--TODO change art for soul shard or burning ember
+	shard:SetTexture("Interface\\ICONS\\INV_Misc_Gem_Amethyst_02")
+	shard:SetWidth(size)
+	shard:SetHeight(size)
+	return shard
+end
+
+function maxPower()
+	return UnitPowerMax("player", powerType())
+end
+
+function powerType()
+	--TODO determine if SPELL_POWER_SOUL_SHARDS or SPELL_POWER_BURNING_EMBERS
+	return SPELL_POWER_SOUL_SHARDS
+end
 
 function colorPrint(msg)
 	print("|cff9382C9"..msg)
