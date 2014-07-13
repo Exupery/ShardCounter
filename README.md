@@ -13,3 +13,4 @@ Displays the number of available Soul Shards (for affliction) or Burning Embers 
 ## TODOs
 * add ability to change size
 * add option to customize display of "empty" shards
+* add option for vertical display
