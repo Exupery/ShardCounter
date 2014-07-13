@@ -1,5 +1,8 @@
 SLASH_SHARDCOUNTER1 = "/shardcounter"
 
+local AFFLICTION = 265
+local DESTRUCTION = 267
+
 local addon = CreateFrame("Frame", "ShardCounter", UIParent)
 local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
@@ -34,7 +37,8 @@ function eventHandler(self, event, unit, ...)
 end
 
 function onLoad()
-	if (powerType()) then
+	local spec = playerSpecialization()
+	if (spec == AFFLICTION or spec == DESTRUCTION) then
 		if (addon) then
 			drawMainFrame()
 			drawShards()
@@ -72,8 +76,8 @@ end
 function shardTexture()
 	local size = addon:GetWidth() / 4
 	local shard = addon:CreateTexture("SHARD", "ARTWORK")
-	--TODO change art for soul shard or burning ember
-	shard:SetTexture("Interface\\ICONS\\INV_Misc_Gem_Amethyst_02")
+	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
+	shard:SetTexture("Interface\\ICONS\\" .. icon)
 	shard:SetWidth(size)
 	shard:SetHeight(size)
 	return shard
@@ -84,8 +88,18 @@ function maxPower()
 end
 
 function powerType()
-	--TODO determine if SPELL_POWER_SOUL_SHARDS or SPELL_POWER_BURNING_EMBERS
-	return SPELL_POWER_SOUL_SHARDS
+	local spec = playerSpecialization()
+	if (spec == AFFLICTION) then
+		return SPELL_POWER_SOUL_SHARDS
+	elseif	(spec == DESTRUCTION) then
+		return SPELL_POWER_BURNING_EMBERS
+	else
+		return nil
+	end
+end
+
+function playerSpecialization()
+	return GetSpecializationInfo(GetSpecialization())
 end
 
 function colorPrint(msg)
