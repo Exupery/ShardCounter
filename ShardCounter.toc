@@ -1,0 +1,9 @@
+## Interface: 50400
+## Title: ShardCounter
+## Notes: Displays available Soul Shards or Burning Embers
+## Author: Exupery
+## Version: 1.0
+## SavedVariables: ShardCounterConfig
+
+ShardCounter.lua
+ShardCounter.xml
