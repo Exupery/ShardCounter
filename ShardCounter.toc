@@ -6,4 +6,3 @@
 ## SavedVariables: ShardCounterConfig
 
 ShardCounter.lua
-ShardCounter.xml
