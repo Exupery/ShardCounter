@@ -6,6 +6,7 @@ local DESTRUCTION = 267
 local addon = CreateFrame("Frame", "ShardCounter", UIParent)
 local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
+events:RegisterEvent("UNIT_POWER")
 local shards = {}
 
 SlashCmdList["SHARDCOUNTER"] = function(cmd)
@@ -28,9 +29,9 @@ SlashCmdList["SHARDCOUNTER"] = function(cmd)
 	end
 end
 
-function eventHandler(self, event, unit, ...)
-	if event == "TODO" then
-		--TODO on shard count change
+function eventHandler(self, event, unit, powerType, ...)
+	if event == "UNIT_POWER" and unit == "player" and powerType == "SOUL_SHARDS" then
+		update()
 	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
 		onLoad()
 		events:UnregisterEvent("ADDON_LOADED")
@@ -53,9 +54,11 @@ end
 function update()
 	local available = UnitPower("player", powerType())
 	for i, shard in ipairs(shards) do
+		local alpha = 1.0
 		if (tonumber(i) > available) then
-			shard:SetAlpha(0.15)
+			alpha = 0.15
 		end
+		shard:SetAlpha(alpha)
 	end	
 end
 
