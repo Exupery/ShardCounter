@@ -6,6 +6,7 @@ local DESTRUCTION = 267
 local addon = CreateFrame("Frame", "ShardCounter", UIParent)
 local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
+local shards = {}
 
 SlashCmdList["SHARDCOUNTER"] = function(cmd)
 	if cmd=="unlock" then
@@ -50,8 +51,12 @@ function onLoad()
 end
 
 function update()
-	--TODO determine how many shards available
-	--TODO update shard display
+	local available = UnitPower("player", powerType())
+	for i, shard in ipairs(shards) do
+		if (tonumber(i) > available) then
+			shard:SetAlpha(0.15)
+		end
+	end	
 end
 
 function drawMainFrame()
@@ -70,12 +75,14 @@ function drawShards()
 	for i = 0, maxPower() - 1, 1 do
 		local shard = shardTexture()
 		shard:SetPoint("LEFT", shard:GetWidth() * i, 0)
+		shards[i + 1] = shard
 	end
+	update()
 end
 
 function shardTexture()
 	local size = addon:GetWidth() / 4
-	local shard = addon:CreateTexture("SHARD", "ARTWORK")
+	local shard = addon:CreateTexture(nil, "ARTWORK")
 	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
 	shard:SetTexture("Interface\\ICONS\\" .. icon)
 	shard:SetWidth(size)
