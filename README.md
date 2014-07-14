@@ -11,6 +11,7 @@ Displays the number of available Soul Shards (for affliction) or Burning Embers 
 * /shardcounter ? or /shardcounter help - Prints the command list
 
 ## TODOs
-* add ability to change size
-* add option to customize display of "empty" shards
-* add option for vertical display
+* ability to change size
+* option to customize display of "empty" shards
+* option for vertical display
+* animations for zero to one and one to zero shards 
