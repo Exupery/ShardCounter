@@ -7,6 +7,9 @@ local addon = CreateFrame("Frame", "ShardCounter", UIParent)
 local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("UNIT_POWER")
+events:RegisterEvent("PLAYER_TALENT_UPDATE")
+--events:RegisterEvent("PLAYER_REGEN_DISABLED")
+--events:RegisterEvent("PLAYER_REGEN_ENABLED")
 local shards = {}
 
 SlashCmdList["SHARDCOUNTER"] = function(cmd)
@@ -32,22 +35,28 @@ end
 function eventHandler(self, event, unit, powerType, ...)
 	if event == "UNIT_POWER" and unit == "player" and powerType == "SOUL_SHARDS" then
 		update()
+	-- elseif event == "PLAYER_REGEN_DISABLED" then
+	-- 	addon:Show()
+	-- elseif event == "PLAYER_REGEN_ENABLED" then
+	-- 	addon:Hide()
+	elseif event == "PLAYER_TALENT_UPDATE" then
+		load()
 	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
-		onLoad()
-		events:UnregisterEvent("ADDON_LOADED")
-	end
-end
-
-function onLoad()
-	local spec = playerSpecialization()
-	if (spec == AFFLICTION or spec == DESTRUCTION) then
 		if (addon) then
-			drawMainFrame()
-			drawShards()
+			load()
 			colorPrint("ShardCounter loaded, for help type /shardcounter ?")
 		else
 			errorPrint("Unable to load ShardCounter!")
 		end
+		events:UnregisterEvent("ADDON_LOADED")
+	end
+end
+
+function load()
+	local spec = playerSpecialization()
+	if (spec == AFFLICTION or spec == DESTRUCTION) then
+		drawMainFrame()
+		drawShards()
 	end
 end
 
@@ -109,7 +118,8 @@ function powerType()
 end
 
 function playerSpecialization()
-	return GetSpecializationInfo(GetSpecialization())
+	local spec = GetSpecialization()
+	return spec and GetSpecializationInfo(spec) or nil
 end
 
 function colorPrint(msg)
