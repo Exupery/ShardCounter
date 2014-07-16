@@ -8,8 +8,7 @@ local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("UNIT_POWER")
 events:RegisterEvent("PLAYER_TALENT_UPDATE")
---events:RegisterEvent("PLAYER_REGEN_DISABLED")
---events:RegisterEvent("PLAYER_REGEN_ENABLED")
+
 local shards = {}
 
 SlashCmdList["SHARDCOUNTER"] = function(cmd)
@@ -35,10 +34,10 @@ end
 function eventHandler(self, event, unit, powerType, ...)
 	if event == "UNIT_POWER" and unit == "player" and powerType == "SOUL_SHARDS" then
 		update()
-	-- elseif event == "PLAYER_REGEN_DISABLED" then
-	-- 	addon:Show()
-	-- elseif event == "PLAYER_REGEN_ENABLED" then
-	-- 	addon:Hide()
+	elseif event == "PLAYER_REGEN_DISABLED" then
+		addon:Show()
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		addon:Hide()
 	elseif event == "PLAYER_TALENT_UPDATE" then
 		load()
 	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
@@ -57,6 +56,8 @@ function load()
 	if (spec == AFFLICTION or spec == DESTRUCTION) then
 		drawMainFrame()
 		drawShards()
+		events:RegisterEvent("PLAYER_REGEN_DISABLED")
+		events:RegisterEvent("PLAYER_REGEN_ENABLED")		
 	end
 end
 
