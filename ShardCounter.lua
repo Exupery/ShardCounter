@@ -7,21 +7,21 @@ local shards = {}
 local config = {}
 
 local addon = CreateFrame("Frame", "ShardCounter", UIParent)
-addon:RegisterForDrag("RightButton")
+addon:SetClampedToScreen(true)
+addon:SetMovable(true)
 
 local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("UNIT_POWER")
-events:RegisterEvent("PLAYER_TALENT_UPDATE")
 
 SlashCmdList["SHARDCOUNTER"] = function(cmd)
 	if cmd == "unlock" then
-		colorPrint("Right click to move - type '/shardcounter lock' when done")
+		colorPrint("Click to move - type '/shardcounter lock' when done")
 		unlockFrame()
 	elseif cmd == "lock" then
 		lockFrame()
 		colorPrint("ShardCounter locked")
-	elseif cmd == "reset" then
+	elseif cmd == "center" then
 		moveToCenter()
 	elseif cmd == "always" then
 		toggleCombatOnly(false)
@@ -33,7 +33,7 @@ SlashCmdList["SHARDCOUNTER"] = function(cmd)
 		print("/shardcounter combat - Show the frame only in combat")
 		print("/shardcounter unlock - Unlocks the frame for repositioning")
 		print("/shardcounter lock - Locks the frame")
-		print("/shardcounter reset - Resets the position to center of screen")
+		print("/shardcounter center - Sets the position to center of screen")
 		print("/shardcounter ? or /shardcounter help - Prints the command list")
 	end
 end
@@ -41,12 +41,10 @@ end
 function eventHandler(self, event, unit, powerType, ...)
 	if event == "UNIT_POWER" and unit == "player" and powerType == "SOUL_SHARDS" then
 		update()
-	elseif showInCombatOnly() then
-		if event == "PLAYER_REGEN_DISABLED" then
-			addon:Show()
-		elseif event == "PLAYER_REGEN_ENABLED" then
-			addon:Hide()
-		end
+	elseif event == "PLAYER_REGEN_DISABLED" and showInCombatOnly() then
+		addon:Show()
+	elseif event == "PLAYER_REGEN_ENABLED" and showInCombatOnly() then
+		addon:Hide()
 	elseif event == "PLAYER_TALENT_UPDATE" then
 		load()
 	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
@@ -58,6 +56,7 @@ function eventHandler(self, event, unit, powerType, ...)
 			errorPrint("Unable to load ShardCounter!")
 		end
 		events:UnregisterEvent("ADDON_LOADED")
+		events:RegisterEvent("PLAYER_TALENT_UPDATE")
 	end
 end
 
@@ -74,33 +73,37 @@ end
 function update()
 	local available = UnitPower("player", powerType())
 	for i, shard in ipairs(shards) do
-		local alpha = 1.0
-		if tonumber(i) > available then
-			alpha = 0.15
-		end
+		local alpha = tonumber(i) > available and 0.15 or 1.0
 		shard:SetAlpha(alpha)
 	end	
 end
 
 function drawMainFrame()
-	local height = 35
-	local width = height * maxPower()
-	addon:SetHeight(height)
-	addon:SetWidth(width)
+	if addon:GetHeight() == 0 then
+		local height = 35
+		local width = height * maxPower()
+		addon:SetHeight(height)
+		addon:SetWidth(width)
 
-	addon:SetPoint("CENTER", UIParent, "CENTER")
-	addon:SetMovable(true)
-	addon:SetScript("OnDragStart", addon.StartMoving)
-	addon:SetScript("OnDragStop", addon.StopMovingOrSizing)
+		addon:RegisterForDrag("LeftButton", "RightButton")
+		addon:SetScript("OnDragStart", addon.StartMoving)
+		addon:SetScript("OnDragStop", addon.StopMovingOrSizing)
+
+		if addon:GetPoint(1) == nil then
+			addon:SetPoint("TOP", UIParent, "TOP")
+		end
+	end
 end
 
 function drawShards()
-	for i = 0, maxPower() - 1, 1 do
-		local shard = shardTexture()
-		shard:SetPoint("LEFT", shard:GetWidth() * i, 0)
-		shards[i + 1] = shard
+	if next(shards) == nil then
+		for i = 0, maxPower() - 1, 1 do
+			local shard = shardTexture()
+			shard:SetPoint("LEFT", shard:GetWidth() * i, 0)
+			shards[i + 1] = shard
+		end
+		update()
 	end
-	update()
 end
 
 function shardTexture()
@@ -154,14 +157,15 @@ function lockFrame()
 end
 
 function moveToCenter()
-	addon:SetPoint("CENTER")
+	addon:ClearAllPoints()
+	addon:SetPoint("CENTER", UIParent, "CENTER")
 end
 
 function showInCombatOnly()
 	return config["combatOnly"]
 end
 
-function toggleCombatOnly(combatOnly) {
+function toggleCombatOnly(combatOnly)
 	ShardCounterConfig["combatOnly"] = combatOnly
 	config = savedConfig()
 	if combatOnly then
@@ -169,7 +173,7 @@ function toggleCombatOnly(combatOnly) {
 	else
 		addon:Show()
 	end
-}
+end
 
 function savedConfig()
 	if not ShardCounterConfig then
