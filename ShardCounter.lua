@@ -45,7 +45,7 @@ function eventHandler(self, event, unit, powerType, ...)
 		addon:Show()
 	elseif event == "PLAYER_REGEN_ENABLED" and showInCombatOnly() then
 		addon:Hide()
-	elseif event == "PLAYER_TALENT_UPDATE" then
+	elseif event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
 		load()
 	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
 		if (addon) then
@@ -57,6 +57,7 @@ function eventHandler(self, event, unit, powerType, ...)
 		end
 		events:UnregisterEvent("ADDON_LOADED")
 		events:RegisterEvent("PLAYER_TALENT_UPDATE")
+		events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	end
 end
 
@@ -96,7 +97,9 @@ function drawMainFrame()
 		end
 	end
 
-	if not showInCombatOnly() then
+	if showInCombatOnly() then
+		addon:Hide()
+	else
 		addon:Show()
 	end
 end
@@ -108,18 +111,27 @@ function drawShards()
 			shard:SetPoint("LEFT", shard:GetWidth() * i, 0)
 			shards[i + 1] = shard
 		end
-		update()
+	else
+		local icon = getIcon()
+		for i, shard in ipairs(shards) do
+			shard:SetTexture(icon)
+		end
 	end
+	update()
 end
 
 function shardTexture()
 	local size = addon:GetWidth() / 4
 	local shard = addon:CreateTexture(nil, "ARTWORK")
-	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
-	shard:SetTexture("Interface\\ICONS\\" .. icon)
+	shard:SetTexture(getIcon())
 	shard:SetWidth(size)
 	shard:SetHeight(size)
 	return shard
+end
+
+function getIcon()
+	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
+	return "Interface\\ICONS\\" .. icon
 end
 
 function maxPower()
