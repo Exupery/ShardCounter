@@ -39,7 +39,7 @@ SlashCmdList["SHARDCOUNTER"] = function(cmd)
 end
 
 function eventHandler(self, event, unit, powerType, ...)
-	if event == "UNIT_POWER" and unit == "player" and powerType == "SOUL_SHARDS" then
+	if event == "UNIT_POWER" and unit == "player" and (powerType == "SOUL_SHARDS" or powerType == "BURNING_EMBERS") then
 		update()
 	elseif event == "PLAYER_REGEN_DISABLED" and showInCombatOnly() then
 		addon:Show()
@@ -66,7 +66,9 @@ function load()
 		drawMainFrame()
 		drawShards()
 		events:RegisterEvent("PLAYER_REGEN_DISABLED")
-		events:RegisterEvent("PLAYER_REGEN_ENABLED")		
+		events:RegisterEvent("PLAYER_REGEN_ENABLED")
+	else
+		addon:Hide()
 	end
 end
 
@@ -92,6 +94,10 @@ function drawMainFrame()
 		if addon:GetPoint(1) == nil then
 			addon:SetPoint("TOP", UIParent, "TOP")
 		end
+	end
+
+	if not showInCombatOnly() then
+		addon:Show()
 	end
 end
 
