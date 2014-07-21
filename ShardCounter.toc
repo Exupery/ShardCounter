@@ -2,7 +2,7 @@
 ## Title: ShardCounter
 ## Notes: Displays available Soul Shards or Burning Embers
 ## Author: Exupery
-## Version: 1.0
+## Version: 1.0.1
 ## SavedVariables: ShardCounterConfig
 
 ShardCounter.lua

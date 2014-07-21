@@ -14,74 +14,56 @@ local events = CreateFrame("Frame", "EventFrame")
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("UNIT_POWER")
 
-SlashCmdList["SHARDCOUNTER"] = function(cmd)
-	if cmd == "unlock" then
-		colorPrint("Click to move - type '/shardcounter lock' when done")
-		unlockFrame()
-	elseif cmd == "lock" then
-		lockFrame()
-		colorPrint("ShardCounter locked")
-	elseif cmd == "center" then
-		moveToCenter()
-	elseif cmd == "always" then
-		toggleCombatOnly(false)
-	elseif cmd == "combat" then
-		toggleCombatOnly(true)	
-	else
-		colorPrint("ShardCounter commands:")
-		print("/shardcounter always - Always show the frame")
-		print("/shardcounter combat - Show the frame only in combat")
-		print("/shardcounter unlock - Unlocks the frame for repositioning")
-		print("/shardcounter lock - Locks the frame")
-		print("/shardcounter center - Sets the position to center of screen")
-		print("/shardcounter ? or /shardcounter help - Prints the command list")
-	end
+local function colorPrint(msg)
+	print("|cff9382C9"..msg)
 end
 
-function eventHandler(self, event, unit, powerType, ...)
-	if event == "UNIT_POWER" and unit == "player" and (powerType == "SOUL_SHARDS" or powerType == "BURNING_EMBERS") then
-		update()
-	elseif event == "PLAYER_REGEN_DISABLED" and showInCombatOnly() then
-		addon:Show()
-	elseif event == "PLAYER_REGEN_ENABLED" and showInCombatOnly() then
+local function errorPrint(err)
+	print("|cffFF0000"..err)
+end
+
+local function showInCombatOnly()
+	return config["combatOnly"]
+end
+
+local function unlockFrame()
+	addon:Show()
+	addon:EnableMouse(true)
+end
+
+local function lockFrame()
+	addon:EnableMouse(false)
+	if showInCombatOnly() then
 		addon:Hide()
-	elseif event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		load()
-	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
-		if (addon) then
-			load()
-			config = savedConfig()
-			colorPrint("ShardCounter loaded, for help type /shardcounter ?")
-		else
-			errorPrint("Unable to load ShardCounter!")
-		end
-		events:UnregisterEvent("ADDON_LOADED")
-		events:RegisterEvent("PLAYER_TALENT_UPDATE")
-		events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	end
 end
 
-function load()
+local function moveToCenter()
+	addon:ClearAllPoints()
+	addon:SetPoint("CENTER", UIParent, "CENTER")
+end
+
+local function playerSpecialization()
+	local spec = GetSpecialization()
+	return spec and GetSpecializationInfo(spec) or nil
+end
+
+local function powerType()
 	local spec = playerSpecialization()
-	if spec == AFFLICTION or spec == DESTRUCTION then
-		drawMainFrame()
-		drawShards()
-		events:RegisterEvent("PLAYER_REGEN_DISABLED")
-		events:RegisterEvent("PLAYER_REGEN_ENABLED")
+	if spec == AFFLICTION then
+		return SPELL_POWER_SOUL_SHARDS
+	elseif spec == DESTRUCTION then
+		return SPELL_POWER_BURNING_EMBERS
 	else
-		addon:Hide()
+		return nil
 	end
 end
 
-function update()
-	local available = UnitPower("player", powerType())
-	for i, shard in ipairs(shards) do
-		local alpha = tonumber(i) > available and 0.15 or 1.0
-		shard:SetAlpha(alpha)
-	end	
+local function maxPower()
+	return UnitPowerMax("player", powerType())
 end
 
-function drawMainFrame()
+local function drawMainFrame()
 	if addon:GetHeight() == 0 then
 		local height = 35
 		local width = height * maxPower()
@@ -104,7 +86,29 @@ function drawMainFrame()
 	end
 end
 
-function drawShards()
+local function update()
+	local available = UnitPower("player", powerType())
+	for i, shard in ipairs(shards) do
+		local alpha = tonumber(i) > available and 0.15 or 1.0
+		shard:SetAlpha(alpha)
+	end	
+end
+
+local function getIcon()
+	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
+	return "Interface\\ICONS\\" .. icon
+end
+
+local function shardTexture()
+	local size = addon:GetWidth() / 4
+	local shard = addon:CreateTexture(nil, "ARTWORK")
+	shard:SetTexture(getIcon())
+	shard:SetWidth(size)
+	shard:SetHeight(size)
+	return shard
+end
+
+local function drawShards()
 	if next(shards) == nil then
 		for i = 0, maxPower() - 1, 1 do
 			local shard = shardTexture()
@@ -120,70 +124,14 @@ function drawShards()
 	update()
 end
 
-function shardTexture()
-	local size = addon:GetWidth() / 4
-	local shard = addon:CreateTexture(nil, "ARTWORK")
-	shard:SetTexture(getIcon())
-	shard:SetWidth(size)
-	shard:SetHeight(size)
-	return shard
-end
-
-function getIcon()
-	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
-	return "Interface\\ICONS\\" .. icon
-end
-
-function maxPower()
-	return UnitPowerMax("player", powerType())
-end
-
-function powerType()
-	local spec = playerSpecialization()
-	if spec == AFFLICTION then
-		return SPELL_POWER_SOUL_SHARDS
-	elseif spec == DESTRUCTION then
-		return SPELL_POWER_BURNING_EMBERS
-	else
-		return nil
+local function savedConfig()
+	if not ShardCounterConfig then
+		ShardCounterConfig = {["combatOnly"] = true}
 	end
+	return ShardCounterConfig
 end
 
-function playerSpecialization()
-	local spec = GetSpecialization()
-	return spec and GetSpecializationInfo(spec) or nil
-end
-
-function colorPrint(msg)
-	print("|cff9382C9"..msg)
-end
-
-function errorPrint(err)
-	print("|cffFF0000"..err)
-end
-
-function unlockFrame()
-	addon:Show()
-	addon:EnableMouse(true)
-end
-
-function lockFrame()
-	addon:EnableMouse(false)
-	if showInCombatOnly() then
-		addon:Hide()
-	end
-end
-
-function moveToCenter()
-	addon:ClearAllPoints()
-	addon:SetPoint("CENTER", UIParent, "CENTER")
-end
-
-function showInCombatOnly()
-	return config["combatOnly"]
-end
-
-function toggleCombatOnly(combatOnly)
+local function toggleCombatOnly(combatOnly)
 	ShardCounterConfig["combatOnly"] = combatOnly
 	config = savedConfig()
 	if combatOnly then
@@ -193,11 +141,63 @@ function toggleCombatOnly(combatOnly)
 	end
 end
 
-function savedConfig()
-	if not ShardCounterConfig then
-		ShardCounterConfig = {["combatOnly"] = true}
+local function load()
+	local spec = playerSpecialization()
+	if spec == AFFLICTION or spec == DESTRUCTION then
+		drawMainFrame()
+		drawShards()
+		events:RegisterEvent("PLAYER_REGEN_DISABLED")
+		events:RegisterEvent("PLAYER_REGEN_ENABLED")
+	else
+		addon:Hide()
 	end
-	return ShardCounterConfig
+end
+
+local function eventHandler(self, event, unit, powerType, ...)
+	if event == "UNIT_POWER" and unit == "player" and (powerType == "SOUL_SHARDS" or powerType == "BURNING_EMBERS") then
+		update()
+	elseif event == "PLAYER_REGEN_DISABLED" and showInCombatOnly() then
+		addon:Show()
+	elseif event == "PLAYER_REGEN_ENABLED" and showInCombatOnly() then
+		addon:Hide()
+	elseif event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
+		load()
+	elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
+		if (addon) then
+			load()
+			config = savedConfig()
+			colorPrint("ShardCounter loaded, for help type /shardcounter ?")
+		else
+			errorPrint("Unable to load ShardCounter!")
+		end
+		events:UnregisterEvent("ADDON_LOADED")
+		events:RegisterEvent("PLAYER_TALENT_UPDATE")
+		events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+	end
+end
+
+SlashCmdList["SHARDCOUNTER"] = function(cmd)
+	if cmd == "unlock" then
+		colorPrint("Click to move - type '/shardcounter lock' when done")
+		unlockFrame()
+	elseif cmd == "lock" then
+		lockFrame()
+		colorPrint("ShardCounter locked")
+	elseif cmd == "center" then
+		moveToCenter()
+	elseif cmd == "always" then
+		toggleCombatOnly(false)
+	elseif cmd == "combat" then
+		toggleCombatOnly(true)	
+	else
+		colorPrint("ShardCounter commands:")
+		print("/shardcounter always - Always show the frame")
+		print("/shardcounter combat - Show the frame only in combat")
+		print("/shardcounter unlock - Unlocks the frame for repositioning")
+		print("/shardcounter lock - Locks the frame")
+		print("/shardcounter center - Sets the position to center of screen")
+		print("/shardcounter ? or /shardcounter help - Prints the command list")
+	end
 end
 
 events:SetScript("OnEvent", eventHandler)

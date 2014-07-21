@@ -1,5 +1,8 @@
 SHARDCOUNTER CHANGE LOG
 ===================
 
+v1.0.1
+- fixed function scope to avoid conflict with other addons
+
 v1.0
 - initial release
