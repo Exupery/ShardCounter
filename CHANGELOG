@@ -1,6 +1,9 @@
 SHARDCOUNTER CHANGE LOG
 ===================
 
+v1.0.2
+- updated interface version for 6.0
+
 v1.0.1
 - fixed function scope to avoid conflict with other addons
 

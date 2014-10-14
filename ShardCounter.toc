@@ -1,4 +1,4 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: ShardCounter
 ## Notes: Displays available Soul Shards or Burning Embers
 ## Author: Exupery
