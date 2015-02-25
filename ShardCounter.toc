@@ -1,8 +1,8 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: ShardCounter
 ## Notes: Displays available Soul Shards or Burning Embers
 ## Author: Exupery
-## Version: 1.0.1
+## Version: 1.0.3
 ## SavedVariables: ShardCounterConfig
 
 ShardCounter.lua
