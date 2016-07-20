@@ -1,6 +1,11 @@
 SHARDCOUNTER CHANGE LOG
 ===================
 
+v1.0.5
+- updated interface version for 7.0
+- removed support for Burning Embers since all specs now use soul shards
+- likewise, addon will now show for Demonology Warlocks
+
 v1.0.4
 - updated interface version for 6.2
 

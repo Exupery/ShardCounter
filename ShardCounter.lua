@@ -1,6 +1,7 @@
 SLASH_SHARDCOUNTER1 = "/shardcounter"
 
 local AFFLICTION = 265
+local DEMONOLOGY = 266
 local DESTRUCTION = 267
 
 local shards = {}
@@ -48,19 +49,8 @@ local function playerSpecialization()
 	return spec and GetSpecializationInfo(spec) or nil
 end
 
-local function powerType()
-	local spec = playerSpecialization()
-	if spec == AFFLICTION then
-		return SPELL_POWER_SOUL_SHARDS
-	elseif spec == DESTRUCTION then
-		return SPELL_POWER_BURNING_EMBERS
-	else
-		return nil
-	end
-end
-
 local function maxPower()
-	return UnitPowerMax("player", powerType())
+	return UnitPowerMax("player", SPELL_POWER_SOUL_SHARDS)
 end
 
 local function drawMainFrame()
@@ -87,16 +77,15 @@ local function drawMainFrame()
 end
 
 local function update()
-	local available = UnitPower("player", powerType())
+	local available = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 	for i, shard in ipairs(shards) do
 		local alpha = tonumber(i) > available and 0.15 or 1.0
 		shard:SetAlpha(alpha)
-	end	
+	end
 end
 
 local function getIcon()
-	local icon = playerSpecialization() == AFFLICTION and "INV_Misc_Gem_Amethyst_02" or "ability_warlock_burningembers"
-	return "Interface\\ICONS\\" .. icon
+	return "Interface\\ICONS\\INV_Misc_Gem_Amethyst_02"
 end
 
 local function shardTexture()
@@ -143,14 +132,14 @@ end
 
 local function load()
 	local spec = playerSpecialization()
-	if spec == AFFLICTION or spec == DESTRUCTION then
-		drawMainFrame()
-		drawShards()
-		events:RegisterEvent("PLAYER_REGEN_DISABLED")
-		events:RegisterEvent("PLAYER_REGEN_ENABLED")
-	else
-		addon:Hide()
-	end
+  if spec == AFFLICTION or spec == DESTRUCTION or spec == DEMONOLOGY then
+    drawMainFrame()
+    drawShards()
+    events:RegisterEvent("PLAYER_REGEN_DISABLED")
+    events:RegisterEvent("PLAYER_REGEN_ENABLED")
+  else
+    addon:Hide()
+  end
 end
 
 local function eventHandler(self, event, unit, powerType, ...)
@@ -188,7 +177,7 @@ SlashCmdList["SHARDCOUNTER"] = function(cmd)
 	elseif cmd == "always" then
 		toggleCombatOnly(false)
 	elseif cmd == "combat" then
-		toggleCombatOnly(true)	
+		toggleCombatOnly(true)
 	else
 		colorPrint("ShardCounter commands:")
 		print("/shardcounter always - Always show the frame")

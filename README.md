@@ -1,6 +1,6 @@
 # ShardCounter
 ### World of Warcraft warlock addon
-Displays the number of available Soul Shards (for affliction) or Burning Embers (for destruction). By default this displays only when in combat but can be toggled to display out of combat.
+Displays the number of available Soul Shards. By default this displays only when in combat but can be toggled to display out of combat.
 
 ## Commands
 * /shardcounter always - Always show the frame
@@ -12,6 +12,6 @@ Displays the number of available Soul Shards (for affliction) or Burning Embers 
 
 ## TODOs
 * option to adjust size
-* option to customize display of unavailable shards/embers
+* option to customize display of unavailable shards
 * option for vertical display
-* animations for zero to one and one to zero shards 
+* animations for zero to one and one to zero shards
