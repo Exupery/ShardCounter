@@ -89,7 +89,7 @@ local function getIcon()
 end
 
 local function shardTexture()
-  local size = addon:GetWidth() / 5
+  local size = addon:GetWidth() / maxPower()
   local shard = addon:CreateTexture(nil, "ARTWORK")
   shard:SetTexture(getIcon())
   shard:SetWidth(size)
