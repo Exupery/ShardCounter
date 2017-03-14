@@ -193,7 +193,6 @@ local function eventHandler(self, event, unit, powerType, ...)
     if (addon) then
       load()
       config = savedConfig()
-      colorPrint("ShardCounter loaded, for help type /shardcounter ?")
     else
       errorPrint("Unable to load ShardCounter!")
     end

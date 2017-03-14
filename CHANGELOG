@@ -1,6 +1,9 @@
 SHARDCOUNTER CHANGE LOG
 ===================
 
+v1.0.7
+- removed the startup message
+
 v1.0.6
 - added ability to resize addon
 - decreased default size of shards
