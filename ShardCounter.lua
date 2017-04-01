@@ -66,13 +66,24 @@ local function maxPower()
   return UnitPowerMax("player", SPELL_POWER_SOUL_SHARDS)
 end
 
+local function stopMoving()
+  addon:StopMovingOrSizing()
+  local left, bottom = addon:GetRect()
+  local _, _, parentWidth, parentHeight = addon:GetParent():GetRect()
+  ShardCounterConfig["left"] = left / parentWidth
+  ShardCounterConfig["bottom"] = bottom / parentHeight
+  config = savedConfig()
+end
+
 local function resized(frame, width, height)
   local size = width / maxPower()
   for i, shard in ipairs(shards) do
     shard:SetWidth(size)
     shard:SetHeight(size)
-    shard:SetPoint("LEFT", shard:GetWidth() * i, 0)
+    shard:SetPoint("LEFT", shard:GetWidth() * (i - 1), 0)
   end
+  addon:SetWidth(width)
+  addon:SetHeight(size)
   resizeButton:SetPoint("BOTTOMRIGHT")
   ShardCounterConfig["height"] = size
   config = savedConfig()
@@ -107,11 +118,14 @@ local function drawMainFrame()
 
     addon:RegisterForDrag("LeftButton", "RightButton")
     addon:SetScript("OnDragStart", addon.StartMoving)
-    addon:SetScript("OnDragStop", addon.StopMovingOrSizing)
+    addon:SetScript("OnDragStop", stopMoving)
 
-    if addon:GetPoint(1) == nil then
-      addon:SetPoint("TOP", UIParent, "TOP")
-    end
+    local left = config["left"] or 0
+    local bottom = config["bottom"] or 0
+    local _, _, parentWidth, parentHeight = addon:GetParent():GetRect()
+    local xOffset = parentWidth * left
+    local yOffset = parentHeight * bottom
+    addon:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", xOffset, yOffset)
   end
 
   if showInCombatOnly() then
@@ -191,8 +205,8 @@ local function eventHandler(self, event, unit, powerType, ...)
     load()
   elseif event == "ADDON_LOADED" and unit == "ShardCounter" then
     if (addon) then
-      load()
       config = savedConfig()
+      load()
     else
       errorPrint("Unable to load ShardCounter!")
     end

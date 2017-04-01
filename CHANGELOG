@@ -1,6 +1,12 @@
 SHARDCOUNTER CHANGE LOG
 ===================
 
+v1.0.8
+- position of addon will no longer be reset to default location if disabled and later re-enabled
+- change of screeen resolution should keep the addon in roughly the same position as a percent of screen (or window in windowed mode) offset relative to the bottom left corner
+- the resize point will now remain properly anchored to the rest of the addon
+- default/initial location changed to bottom left instead of top center
+
 v1.0.7
 - removed the startup message
 - updated interface version for 7.2
