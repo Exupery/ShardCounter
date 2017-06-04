@@ -195,7 +195,7 @@ local function load()
 end
 
 local function eventHandler(self, event, unit, powerType, ...)
-  if event == "UNIT_POWER" and unit == "player" and powerType == "SOUL_SHARDS" then
+  if event == "UNIT_POWER" and unit == "player" then
     update()
   elseif event == "PLAYER_REGEN_DISABLED" and showInCombatOnly() then
     addon:Show()
