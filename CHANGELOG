@@ -1,6 +1,9 @@
 SHARDCOUNTER CHANGE LOG
 ===================
 
+v1.0.10
+- updated interface version for 7.3
+
 v1.0.9
 - fixed bug that could cause refunded soul shards to not display until another shard was generated
 
