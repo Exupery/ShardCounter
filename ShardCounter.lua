@@ -4,6 +4,8 @@ local AFFLICTION = 265
 local DEMONOLOGY = 266
 local DESTRUCTION = 267
 
+local SPELL_POWER_SOUL_SHARDS = 7
+
 local shards = {}
 local config = {}
 local resizeButton = nil
@@ -12,9 +14,9 @@ local addon = CreateFrame("Frame", "ShardCounter", UIParent)
 addon:SetClampedToScreen(true)
 addon:SetMovable(true)
 
-local events = CreateFrame("Frame", "EventFrame")
+local events = CreateFrame("Frame", "ShardCounterEventFrame")
 events:RegisterEvent("ADDON_LOADED")
-events:RegisterEvent("UNIT_POWER")
+events:RegisterEvent("UNIT_POWER_UPDATE")
 
 local function colorPrint(msg)
   print("|cff9382C9"..msg)
@@ -195,7 +197,7 @@ local function load()
 end
 
 local function eventHandler(self, event, unit, powerType, ...)
-  if event == "UNIT_POWER" and unit == "player" then
+  if event == "UNIT_POWER_UPDATE" and unit == "player" then
     update()
   elseif event == "PLAYER_REGEN_DISABLED" and showInCombatOnly() then
     addon:Show()
