@@ -127,7 +127,6 @@ local function drawMainFrame()
     local _, _, parentWidth, parentHeight = addon:GetParent():GetRect()
     local xOffset = parentWidth * left
     local yOffset = parentHeight * bottom
-    addon:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", xOffset, yOffset)
   end
 
   if showInCombatOnly() then
