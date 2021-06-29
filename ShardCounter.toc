@@ -1,8 +1,8 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: ShardCounter
 ## Notes: Displays available Soul Shards
 ## Author: Exuperjun - Emerald Dream
-## Version: 1.0.18
+## Version: 1.0.19
 ## SavedVariables: ShardCounterConfig
 
 ShardCounter.lua
